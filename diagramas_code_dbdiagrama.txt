@@ -1,0 +1,60 @@
+Table usuarios {
+  id_usuario int [pk, increment]
+  nome varchar
+  documento varchar
+  tipo_usuario varchar // funcionario | terceiro | visitante | admin | segurança | operador
+  login varchar
+  senha_hash varchar
+  perfil_acesso varchar
+  empresa_origem int [ref: > empresas.id_empresa]
+  contato varchar
+  data_cadastro datetime
+}
+
+Table veiculos {
+  id_veiculo int [pk, increment]
+  placa varchar [unique]
+  modelo varchar
+  ano int
+  id_responsavel int [ref: > usuarios.id_usuario]
+  data_cadastro datetime
+}
+
+Table empresas {
+  id_empresa int [pk, increment]
+  nome_empresa varchar
+  cnpj varchar
+  tipo_empresa varchar // transportadora | visitada | prestadora | interna
+  responsavel varchar
+  contato varchar
+  data_cadastro datetime
+}
+
+Table acessos_pessoais {
+  id_acesso_pessoal int [pk, increment]
+  data_registro datetime
+  id_usuario int [ref: > usuarios.id_usuario]
+  documento_usuario varchar
+  tipo_acesso varchar // pedestre | visitante
+  id_empresa_visitada int [ref: > empresas.id_empresa]
+  motivo_visita varchar
+  hora_entrada time
+  hora_saida time
+  observacao text
+}
+
+Table acessos_veiculares {
+  id_acesso_veiculo int [pk, increment]
+  data_registro datetime
+  id_veiculo int [ref: > veiculos.id_veiculo]
+  placa varchar
+  id_responsavel int [ref: > usuarios.id_usuario]
+  ano_veiculo int
+  hora_entrada time
+  hora_saida time
+  tipo_servico varchar // interno | visitante | entrega | coleta | manutenção
+  nota_fiscal_entrada varchar
+  nota_fiscal_saida varchar
+  id_transportadora int [ref: > empresas.id_empresa]
+  observacao text
+}
