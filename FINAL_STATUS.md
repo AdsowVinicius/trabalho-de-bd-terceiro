@@ -46,9 +46,30 @@ Todas as funcionalidades principais foram implementadas, testadas e validadas:
 **Teste**: POST /acessos-pessoais/ com usuario joao_silva (ID 3) criou registro com sucesso (ID 12, status 201).
 
 ### 3. Acessos Veiculares ✅ COMPLETO
-- Endpoints CRUD implementados
-- Integração com usuários e veículos
-- Campos: id_usuario, id_veiculo, id_empresa_visitada, motivo_visita, observacao
+- **Busca de Veículos**: Autocomplete por placa ou modelo
+- **Auto-preenchimento**: Campos placa, ano e modelo preenchidos automaticamente ao selecionar veículo
+- **Busca de Responsáveis**: Autocomplete por nome, documento ou login (motoristas/condutores)
+- **Busca de Transportadoras**: Autocomplete por nome da empresa (opcional)
+- **Campos**: 
+  - id_veiculo (obrigatório, busca)
+  - placa (leitura, auto-preenchido)
+  - ano (leitura, auto-preenchido)
+  - modelo (leitura, auto-preenchido)
+  - id_responsavel (obrigatório, busca)
+  - id_tipo_servico (dropdown)
+  - nota_fiscal_entrada (texto)
+  - nota_fiscal_saida (texto)
+  - id_transportadora (opcional, busca)
+  - observacao (textarea)
+  - hora_entrada (CURRENT_TIMESTAMP automaticamente)
+- **Botões de Ação**: 
+  - Registrar Acesso Veicular (desabilitado até veículo e responsável selecionados)
+  - Cadastrar Novo Veículo (navega para gestão)
+  - Cadastrar Novo Responsável (navega para gestão de usuários)
+  - Cadastrar Nova Transportadora (navega para gestão de empresas)
+- **Validação**: Botão submit desabilitado até ambos veículo e responsável selecionados
+
+**Teste**: POST /acessos-veiculares/ com veiculo ID 2 (ABC-1234), responsavel ID 3 (joao_silva), tipo 1, transportadora 1, criou registro com sucesso (status 201).
 
 ### 4. Gerenciamento de Usuários ✅ COMPLETO
 - Criar, listar, atualizar, deletar usuários
@@ -67,8 +88,11 @@ Todas as funcionalidades principais foram implementadas, testadas e validadas:
 - GET /lookups/tipos-empresa → tipos de empresa
 - GET /lookups/tipos-servico → tipos de acesso/serviço
 - GET /lookups/empresas → empresas com id e nome_empresa
+- GET /lookups/veiculos → veículos com id, placa, ano, modelo
+- GET /lookups/responsaveis → usuários (motoristas) com id, nome, documento, login
+- GET /lookups/transportadoras → transportadoras com id, nome, cnpj
 
-Todos retornam formato: `[{id: number, nome: string}, ...]`
+Todos retornam em formato apropriado para cada entidade (flexível e auto-detectável)
 
 ### 7. Frontend (React + Vite) ✅ COMPLETO
 - **Estrutura**:
@@ -206,7 +230,41 @@ Auth: Bearer <token>
 → Status 201, Acesso ID 12 criado ✓
 ```
 
-### Teste 5: Form Frontend
+### Teste 5: Lookup Endpoints Veiculares
+```bash
+GET /lookups/veiculos → [{"id": 2, "placa": "ABC-1234", "ano": 2020, "modelo": "Fiat Uno"}] ✓
+GET /lookups/responsaveis → [{"id": 1, "nome": "Admin Teste", "documento": "12345678903", "login": "admin_teste"}, ...] ✓
+GET /lookups/transportadoras → [{"id": 1, "nome": "Empresa Exemplo", "cnpj": "00.000.000/0000-00"}] ✓
+```
+
+### Teste 6: Criar Acesso Veicular
+```bash
+POST /acessos-veiculares/
+{
+  "id_veiculo": 2,
+  "id_responsavel": 3,
+  "id_tipo_servico": 1,
+  "nota_fiscal_entrada": "NF-123456",
+  "nota_fiscal_saida": null,
+  "id_transportadora": 1,
+  "observacao": "Teste acesso veicular"
+}
+Auth: Bearer <token>
+→ Status 201, Acesso Veicular criado ✓
+```
+
+### Teste 7: Form Frontend Acessos Veiculares
+Componente AcessoVeicular renderiza:
+- Campo busca veículos com dropdown filtrado ✓
+- Auto-preenchimento placa, ano, modelo ✓
+- Campo busca responsáveis (motoristas) com dropdown filtrado ✓
+- Dropdown tipo de acesso ✓
+- Campos nota_fiscal_entrada e nota_fiscal_saida ✓
+- Campo busca transportadoras com dropdown filtrado ✓
+- Campo observacao (textarea) ✓
+- 4 Botões de ação (Registrar, Cadastrar Veiculo, Responsavel, Transportadora) ✓
+- Submit button funcional (desabilitado até veiculo e responsavel selecionados) ✓
+- Form Frontend Acessos Pessoais
 Componente AcessoPessoal renderiza:
 - Campo busca usuários com dropdown filtrado ✓
 - Auto-preenchimento documento ✓

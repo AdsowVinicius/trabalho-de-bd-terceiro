@@ -1,24 +1,38 @@
-# Controle de Acesso - API FastAPI
+# Controle de Acesso - API FastAPI + React
 
-Uma API completa para controle de entrada de pessoas e veículos, com autenticação JWT e boas práticas de OOP.
+Uma aplicacao completa para controle de entrada de pessoas e veiculos, com autenticacao JWT e interface React moderna.
 
 ## Características
 
-- ✅ Autenticação com JWT
-- ✅ Criptografia de senhas com bcrypt
-- ✅ CRUDs completos para usuários, veículos, acessos pessoais e veiculares
+- ✅ Autenticacao com JWT
+- ✅ Criptografia de senhas com pbkdf2_sha256
+- ✅ CRUDs completos para usuarios, veiculos, acessos pessoais e veiculares
+- ✅ Formularios avancados com autocomplete e busca
+- ✅ Auto-preenchimento de campos relacionados
 - ✅ Arquitetura em camadas (Models, Services, Routes, Schemas)
-- ✅ Integração com MariaDB/MySQL
-- ✅ Documentação automática com Swagger
-- ✅ Boas práticas de OOP e encapsulamento
+- ✅ Integracao com MariaDB/MySQL
+- ✅ Frontend React com Vite
+- ✅ Documentacao automatica com Swagger
+- ✅ Boas praticas de OOP e encapsulamento
 
 ## 🚀 Quick Start
 
-1. **Configure o banco de dados**: Veja [DATABASE_SETUP.md](DATABASE_SETUP.md)
-2. **Instale as dependências**: `pip install -r app/requirements.txt`
-3. **Inicie a aplicação**: `python run.py`
-4. **Teste os endpoints**: `python test_api.py`
-5. **Acesse o Swagger**: http://localhost:8000/docs
+### Backend
+```bash
+cd "c:\Users\adsow\Desktop\trabalho de bd terceiro"
+python -m uvicorn main:app --reload --host 127.0.0.1 --port 8001
+```
+
+### Frontend
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+### Acessar
+- **Aplicacao**: http://localhost:5174
+- **API Docs**: http://127.0.0.1:8001/docs
 
 ## Estrutura do Projeto
 
