@@ -5,7 +5,7 @@ from typing import Optional
 from ..database.config import settings
 
 # Contexto para hash de senha
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 
 class SecurityService:

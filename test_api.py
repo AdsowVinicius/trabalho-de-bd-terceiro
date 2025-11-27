@@ -7,7 +7,7 @@ import requests
 import json
 from typing import Optional
 
-BASE_URL = "http://localhost:8000"
+BASE_URL = "http://localhost:8001"
 
 class APITester:
     def __init__(self, base_url: str = BASE_URL):
@@ -90,11 +90,15 @@ class APITester:
             "senha": "senha123"
         }
         response = requests.post(f"{self.base_url}/usuarios/login", json=payload)
-        self._print_response("POST", "/usuarios/login", response.status_code, response.json())
+        try:
+            response_data = response.json()
+        except requests.exceptions.JSONDecodeError:
+            print("❌ Erro ao decodificar resposta JSON - Banco de dados pode não estar disponível")
+            return False
+        self._print_response("POST", "/usuarios/login", response.status_code, response_data)
         
         if response.status_code == 200:
-            data = response.json()
-            self.token = data.get("access_token")
+            self.token = response_data.get("access_token")
             return True
         return False
     
@@ -106,7 +110,12 @@ class APITester:
         
         print("\n✓ Testando Obter Usuário...")
         response = requests.get(f"{self.base_url}/usuarios/{self.usuario_id}")
-        self._print_response("GET", f"/usuarios/{self.usuario_id}", response.status_code, response.json())
+        try:
+            response_data = response.json()
+        except requests.exceptions.JSONDecodeError:
+            print("❌ Erro ao decodificar resposta JSON - Banco de dados pode não estar disponível")
+            return False
+        self._print_response("GET", f"/usuarios/{self.usuario_id}", response.status_code, response_data)
         return response.status_code == 200
     
     def test_criar_veiculo(self):
