@@ -5,7 +5,9 @@ from typing import Optional
 from ..database.config import settings
 
 # Contexto para hash de senha
-pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
+# Support both the newer `pbkdf2_sha256` for new hashes and `bcrypt`
+# so existing user records hashed with bcrypt can still be verified.
+pwd_context = CryptContext(schemes=["pbkdf2_sha256", "bcrypt"], deprecated="auto")
 
 
 class SecurityService:
@@ -14,11 +16,11 @@ class SecurityService:
     @staticmethod
     def hash_password(password: str) -> str:
         """
-        Criptografa uma senha usando bcrypt
-        
+        Criptografa uma senha usando o esquema padrão (`pbkdf2_sha256`).
+
         Args:
             password: Senha em texto plano
-            
+
         Returns:
             Senha criptografada
         """
@@ -36,7 +38,12 @@ class SecurityService:
         Returns:
             True se as senhas correspondem, False caso contrário
         """
-        return pwd_context.verify(plain_password, hashed_password)
+        try:
+            return pwd_context.verify(plain_password, hashed_password)
+        except Exception:
+            # If hash format is unrecognized (e.g., plain MD5/SHA256), return False
+            # This prevents "UnknownHashError" from crashing the endpoint
+            return False
     
     @staticmethod
     def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
