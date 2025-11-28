@@ -47,21 +47,26 @@ export default function Veiculos(){
       const r = await fetch('http://127.0.0.1:8001/lookups/responsaveis')
       if (r.ok) {
         const data = await r.json()
+        console.log('Responsáveis carregados:', data)
         setResponsaveis(data)
+      } else {
+        console.error('Erro ao carregar responsáveis:', r.status)
+        setResponsaveis([])
       }
     } catch (e) {
       console.error('Erro ao carregar responsáveis:', e)
+      setResponsaveis([])
     }
   }
 
   // Busca responsaveis
   const handleSearchResponsavel = (valor) => {
     setSearchResponsavel(valor)
-    if (valor.trim()) {
+    if (valor.trim() && responsaveis.length > 0) {
       const filtrados = responsaveis.filter(r =>
-        r.nome.toLowerCase().includes(valor.toLowerCase()) ||
-        r.documento.includes(valor) ||
-        r.login.toLowerCase().includes(valor.toLowerCase())
+        (r.nome && r.nome.toLowerCase().includes(valor.toLowerCase())) ||
+        (r.documento && r.documento.includes(valor)) ||
+        (r.login && r.login.toLowerCase().includes(valor.toLowerCase()))
       )
       setResponsaveisFiltrados(filtrados)
       setShowResponsaveisList(true)
@@ -302,11 +307,14 @@ export default function Veiculos(){
                     top: '100%',
                     left: 0,
                     right: 0,
-                    border: '1px solid #ddd',
-                    maxHeight: '200px',
+                    border: '2px solid #0B7A47',
+                    maxHeight: '250px',
                     overflowY: 'auto',
                     backgroundColor: 'white',
-                    zIndex: 10
+                    zIndex: 10,
+                    borderRadius: '6px',
+                    marginTop: '5px',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                   }}>
                     {responsaveisFiltrados.length > 0 ? (
                       responsaveisFiltrados.map(r =>
@@ -314,17 +322,27 @@ export default function Veiculos(){
                           key={r.id}
                           onClick={() => selecionarResponsavel(r)}
                           style={{
-                            padding: '8px',
+                            padding: '10px 12px',
                             borderBottom: '1px solid #eee',
                             cursor: 'pointer',
-                            backgroundColor: responsavelSelecionado?.id === r.id ? '#e3f2fd' : 'white'
+                            backgroundColor: responsavelSelecionado?.id === r.id ? '#E8F5ED' : 'white',
+                            transition: 'all 0.2s',
+                            ':hover': { backgroundColor: '#E8F5ED' }
                           }}
+                          onMouseEnter={(e) => e.target.style.backgroundColor = '#E8F5ED'}
+                          onMouseLeave={(e) => e.target.style.backgroundColor = responsavelSelecionado?.id === r.id ? '#E8F5ED' : 'white'}
                         >
-                          <strong>{r.nome}</strong> ({r.documento}) - {r.login}
+                          <strong style={{ color: '#0B7A47' }}>{r.nome}</strong>
+                          <br />
+                          <small style={{ color: '#999' }}>
+                            📋 {r.documento} | 👤 {r.login}
+                          </small>
                         </div>
                       )
                     ) : (
-                      <div style={{ padding: '8px', color: '#999' }}>Nenhum responsavel encontrado</div>
+                      <div style={{ padding: '10px', color: '#999', textAlign: 'center' }}>
+                        Nenhum usuário encontrado
+                      </div>
                     )}
                   </div>
                 )}

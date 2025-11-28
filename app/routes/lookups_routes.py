@@ -82,15 +82,15 @@ def get_empresas(db: Session = Depends(get_db)):
 
 @router.get("/veiculos", response_model=List[dict])
 def get_veiculos(db: Session = Depends(get_db)):
-    """Get list of vehicles with id, placa, ano, modelo"""
+    """Get list of vehicles with id, placa, ano, modelo and id_responsavel"""
     try:
         sql = text("""
-            SELECT id_veiculo as id, placa, ano, modelo 
+            SELECT id_veiculo as id, placa, ano, modelo, id_responsavel
             FROM veiculos 
             ORDER BY placa
         """)
         res = db.execute(sql).mappings().all()
-        return [{"id": r["id"], "placa": r["placa"], "ano": r["ano"], "modelo": r["modelo"]} for r in res]
+        return [{"id": r["id"], "placa": r["placa"], "ano": r["ano"], "modelo": r["modelo"], "id_responsavel": r["id_responsavel"]} for r in res]
     except Exception:
         return []
 

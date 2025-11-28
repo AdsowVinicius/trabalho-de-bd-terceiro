@@ -23,6 +23,7 @@ export default function Nav(){
         <h1 style={{ cursor: 'pointer', transition: 'all 0.3s ease' }} onClick={() => nav('/controle-acesso')} onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'} onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}>🔐 Controle de Acesso</h1>
         <ul>
           <li><Link to="/controle-acesso">Monitoramento</Link></li>
+          <li><Link to="/relatorios">Relatórios</Link></li>
           <li><Link to="/acessos-pessoais">Acessos Pessoais</Link></li>
           <li><Link to="/acessos-veiculares">Acessos Veiculares</Link></li>
           <li><Link to="/veiculos">Veículos</Link></li>

@@ -6,7 +6,7 @@ import '../styles.css'
 export default function Users(){
   const [users, setUsers] = useState([])
   const [form, setForm] = useState({ id_usuario: null, nome:'', documento:'', id_tipo_usuario:'1', login:'', senha:'', id_perfil_acesso:'', empresa_origem:null, contato:'', ativo:true })
-  const [lookups, setLookups] = useState({tiposUsuario:[], perfis:[], tiposEmpresa:[]})
+  const [lookups, setLookups] = useState({tiposUsuario:[], perfis:[], empresas:[]})
   const [mostrando, setMostrando] = useState(false)
   const [editando, setEditando] = useState(false)
 
@@ -24,60 +24,64 @@ export default function Users(){
   async function submit(e){
     e.preventDefault()
     
-    const tipo = parseInt(form.id_tipo_usuario || 1)
-    const isInterno = [1, 2, 3].includes(tipo)
-    
     // Validações e Padronização
     const nomeTrimado = form.nome.trim()
     if(!nomeTrimado){
-      alert('Nome é obrigatório')
+      alert('❌ Nome é obrigatório')
       return
     }
     if(nomeTrimado.length < 3){
-      alert('Nome deve ter no mínimo 3 caracteres')
+      alert('❌ Nome deve ter no mínimo 3 caracteres')
       return
     }
     if(nomeTrimado.length > 120){
-      alert('Nome não pode exceder 120 caracteres')
+      alert('❌ Nome não pode exceder 120 caracteres')
       return
     }
     
     const documentoTrimado = form.documento.trim().replace(/\D/g, '')
     if(!documentoTrimado){
-      alert('Documento é obrigatório')
+      alert('❌ Documento é obrigatório')
       return
     }
     if(documentoTrimado.length < 8){
-      alert('Documento deve ter no mínimo 8 dígitos')
+      alert('❌ Documento deve ter no mínimo 8 dígitos')
       return
     }
     
+    // Buscar tipo de usuário selecionado
+    const tipoId = parseInt(form.id_tipo_usuario)
+    const tipoSelecionado = (lookups.tiposUsuario || []).find(t => t.id === tipoId)
+    const tiposInternosChaves = ['admin', 'seguranca', 'operador']
+    const isInterno = tipoSelecionado && tiposInternosChaves.includes(tipoSelecionado.chave)
+    
+    // Validações para usuários internos
     if(isInterno){
       const loginTrimado = form.login.trim().toLowerCase()
       if(!loginTrimado){
-        alert('Login é obrigatório para usuários internos')
+        alert('❌ Login é obrigatório para usuários internos')
         return
       }
       if(loginTrimado.length < 4){
-        alert('Login deve ter no mínimo 4 caracteres')
+        alert('❌ Login deve ter no mínimo 4 caracteres')
         return
       }
       if(!/^[a-z0-9._-]+$/.test(loginTrimado)){
-        alert('Login deve conter apenas letras, números, ponto, hífen ou underscore')
+        alert('❌ Login deve conter apenas letras, números, ponto, hífen ou underscore')
         return
       }
       
       if(!form.senha.trim() && !editando){
-        alert('Senha é obrigatória para usuários internos')
+        alert('❌ Senha é obrigatória para novos usuários internos')
         return
       }
       if(form.senha.trim() && form.senha.trim().length < 6){
-        alert('Senha deve ter no mínimo 6 caracteres')
+        alert('❌ Senha deve ter no mínimo 6 caracteres')
         return
       }
       
       if(!form.id_perfil_acesso){
-        alert('Perfil de acesso é obrigatório para usuários internos')
+        alert('❌ Perfil de acesso é obrigatório para usuários internos')
         return
       }
     }
@@ -88,52 +92,57 @@ export default function Users(){
     const payload = {
       nome: nomeTrimado,
       documento: documentoTrimado,
-      id_tipo_usuario: tipo,
+      id_tipo_usuario: tipoId,
       empresa_origem: form.empresa_origem ? parseInt(form.empresa_origem) : null,
       contato: contatoTrimado && contatoTrimado.length > 0 ? contatoTrimado : null,
       ativo: true
     }
     
-    // Adicionar campos de acesso para todos (interno com valores, externo com null)
+    // Adicionar campos de acesso apenas para usuários internos
     if(isInterno){
       payload.login = form.login.trim().toLowerCase()
-      if(form.senha.trim()) payload.senha = form.senha.trim()
+      if(form.senha.trim()) {
+        payload.senha = form.senha.trim()
+      }
       payload.id_perfil_acesso = parseInt(form.id_perfil_acesso)
-    } else {
-      payload.login = null
-      payload.senha = null
-      payload.id_perfil_acesso = null
     }
     
     // Se está editando, fazer update, senão fazer create
-    if(editando){
-      const r = await api.updateUser(form.id_usuario, payload, token)
-      if(r.status===200){
-        alert('Usuário atualizado com sucesso!')
+    try {
+      let r
+      if(editando){
+        r = await api.updateUser(form.id_usuario, payload, token)
+      } else {
+        r = await api.registerUser(payload, token)
+      }
+      
+      if(r.status === 201 || r.status === 200){
+        alert(editando ? '✅ Usuário atualizado com sucesso!' : '✅ Usuário criado com sucesso!')
         // Limpar formulário
-        setForm({ id_usuario: null, nome:'', documento:'', id_tipo_usuario:'1', login:'', senha:'', id_perfil_acesso:'', empresa_origem:null, contato:'', ativo:true })
+        setForm({ 
+          id_usuario: null, 
+          nome:'', 
+          documento:'', 
+          id_tipo_usuario:'1', 
+          login:'', 
+          senha:'', 
+          id_perfil_acesso:'', 
+          empresa_origem:null, 
+          contato:'', 
+          ativo:true 
+        })
         setMostrando(false)
         setEditando(false)
         // Recarregar lista
         const res = await api.listUsers()
-        if(res.status===200) setUsers(res.data)
-      }else{
-        alert('Erro: '+(r.data?.detail||JSON.stringify(r.data)))
+        if(res.status === 200) setUsers(res.data || [])
+      } else {
+        const errorMsg = r.data?.detail || r.data?.message || 'Erro desconhecido'
+        alert('❌ ' + errorMsg)
       }
-    } else {
-      const r = await api.registerUser(payload, token)
-      if(r.status===201){
-        alert('Usuário criado com sucesso!')
-        // Limpar formulário
-        setForm({ id_usuario: null, nome:'', documento:'', id_tipo_usuario:'1', login:'', senha:'', id_perfil_acesso:'', empresa_origem:null, contato:'', ativo:true })
-        setMostrando(false)
-        setEditando(false)
-        // Recarregar lista
-        const res = await api.listUsers()
-        if(res.status===200) setUsers(res.data)
-      }else{
-        alert('Erro: '+(r.data?.detail||JSON.stringify(r.data)))
-      }
+    } catch(err) {
+      console.error('Erro ao processar usuário:', err)
+      alert('❌ Erro: ' + (err.message || JSON.stringify(err)))
     }
   }
 
@@ -219,9 +228,17 @@ export default function Users(){
             <FormField label="Tipo de Usuário *">
               <select 
                 value={form.id_tipo_usuario} 
-                onChange={e=>setForm({...form,id_tipo_usuario:e.target.value})}
+                onChange={e => {
+                  setForm({...form, id_tipo_usuario: e.target.value})
+                }}
+                required
               >
-                { (lookups.tiposUsuario||[]).length ? (lookups.tiposUsuario.map(t=> <option key={t.id} value={String(t.id)}>{t.nome}</option>)) : (<option value="1">Interno</option>) }
+                <option value="">Selecione um tipo...</option>
+                { (lookups.tiposUsuario || []).map(t => (
+                  <option key={t.id} value={String(t.id)}>
+                    {t.nome || t.chave}
+                  </option>
+                ))}
               </select>
             </FormField>
 
@@ -253,7 +270,7 @@ export default function Users(){
                     required
                   >
                     <option value="">Selecione um perfil...</option>
-                    { (lookups.perfis||[]).length ? (lookups.perfis.map(p=> <option key={p.id} value={p.id}>{p.nome}</option>)) : (<><option value={1}>Porteiro</option><option value={2}>Admin</option></>) }
+                    { (lookups.perfis||[]).length ? (lookups.perfis.map(p=> <option key={p.id} value={p.id}>{p.nome}</option>)) : (<React.Fragment><option key={1} value={1}>Porteiro</option><option key={2} value={2}>Admin</option></React.Fragment>) }
                   </select>
                 </FormField>
               </>
@@ -265,7 +282,7 @@ export default function Users(){
                 onChange={e=>setForm({...form,empresa_origem: e.target.value?parseInt(e.target.value):null})}
               >
                 <option value="">(nenhuma)</option>
-                { (lookups.tiposEmpresa||[]).map(t=> <option key={t.id} value={t.id}>{t.nome}</option>) }
+                { (lookups.empresas||[]).map(e=> <option key={e.id} value={e.id}>{e.nome}</option>) }
               </select>
             </FormField>
 

@@ -87,28 +87,6 @@ class UsuarioService:
             if usuario_existente:
                 raise ValueError("Login já cadastrado")
         
-        # Criar novo usuário
-        novo_usuario = Usuario(
-            nome=usuario_data.nome,
-            documento=usuario_data.documento,
-            id_tipo_usuario=usuario_data.id_tipo_usuario,
-            login=usuario_data.login,
-            senha_hash=self.security_service.hash_password(usuario_data.senha) if usuario_data.senha else None,
-            id_perfil_acesso=usuario_data.id_perfil_acesso,
-            empresa_origem=usuario_data.empresa_origem,
-            contato=usuario_data.contato,
-            ativo=usuario_data.ativo
-        )
-        
-        try:
-            self.db.add(novo_usuario)
-            self.db.commit()
-            self.db.refresh(novo_usuario)
-            return novo_usuario
-        except IntegrityError:
-            self.db.rollback()
-            raise ValueError("Erro ao criar usuário - dados duplicados ou inválidos")
-        
         # Hash da senha (apenas se houver senha)
         senha_hash = None
         if usuario_data.senha:
@@ -189,9 +167,22 @@ class UsuarioService:
         if not usuario:
             return None
         
-        # Determinar se é usuário interno
-        tipos_internos = [1, 2, 3]
-        eh_interno = usuario.id_tipo_usuario in tipos_internos if hasattr(usuario_data, 'id_tipo_usuario') and usuario_data.id_tipo_usuario else usuario.id_tipo_usuario in tipos_internos
+        # Determinar se é usuário interno pela chave
+        from ..models.lookups import LuTiposUsuario
+        tipos_internos = ['admin', 'seguranca', 'operador']
+        
+        # Se houver mudança de tipo, usar o novo tipo
+        tipo_id_para_verificar = usuario_data.id_tipo_usuario if hasattr(usuario_data, 'id_tipo_usuario') and usuario_data.id_tipo_usuario else usuario.id_tipo_usuario
+        
+        tipo_usuario = self.db.query(LuTiposUsuario).filter(
+            LuTiposUsuario.id == tipo_id_para_verificar
+        ).first()
+        
+        eh_interno = tipo_usuario and tipo_usuario.chave in tipos_internos
+        
+        # Atualizar tipo de usuário se informado
+        if hasattr(usuario_data, 'id_tipo_usuario') and usuario_data.id_tipo_usuario is not None:
+            usuario.id_tipo_usuario = usuario_data.id_tipo_usuario
         
         # Atualizar campos básicos
         if usuario_data.nome is not None:
@@ -203,20 +194,19 @@ class UsuarioService:
         if usuario_data.empresa_origem is not None:
             usuario.empresa_origem = usuario_data.empresa_origem
         
-        # Atualizar campos de acesso (login, senha, perfil)
-        if hasattr(usuario_data, 'login') and usuario_data.login is not None:
-            usuario.login = usuario_data.login
-        elif hasattr(usuario_data, 'login') and usuario_data.login is None:
+        # Atualizar campos de acesso (login, senha, perfil) conforme tipo
+        if eh_interno:
+            # Usuário interno pode ter login, senha e perfil
+            if hasattr(usuario_data, 'login') and usuario_data.login is not None:
+                usuario.login = usuario_data.login
+            if hasattr(usuario_data, 'senha') and usuario_data.senha is not None:
+                usuario.senha_hash = self.security_service.hash_password(usuario_data.senha)
+            if hasattr(usuario_data, 'id_perfil_acesso') and usuario_data.id_perfil_acesso is not None:
+                usuario.id_perfil_acesso = usuario_data.id_perfil_acesso
+        else:
+            # Usuário externo não deve ter login, senha ou perfil
             usuario.login = None
-            
-        if hasattr(usuario_data, 'senha') and usuario_data.senha is not None:
-            usuario.senha_hash = self.security_service.hash_password(usuario_data.senha)
-        elif hasattr(usuario_data, 'senha') and usuario_data.senha is None:
             usuario.senha_hash = None
-            
-        if hasattr(usuario_data, 'id_perfil_acesso') and usuario_data.id_perfil_acesso is not None:
-            usuario.id_perfil_acesso = usuario_data.id_perfil_acesso
-        elif hasattr(usuario_data, 'id_perfil_acesso') and usuario_data.id_perfil_acesso is None:
             usuario.id_perfil_acesso = None
         
         try:
@@ -225,7 +215,7 @@ class UsuarioService:
             return usuario
         except IntegrityError:
             self.db.rollback()
-            raise ValueError("Erro ao atualizar usuário")
+            raise ValueError("Erro ao atualizar usuário - dados duplicados ou inválidos")
     
     def deletar_usuario(self, usuario_id: int) -> bool:
         """

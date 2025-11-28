@@ -31,7 +31,7 @@ export default function AcessoPessoal(){
       const filtrados = usuarios.filter(u=>
         u.nome.toLowerCase().includes(valor.toLowerCase()) ||
         u.documento.includes(valor) ||
-        u.login.toLowerCase().includes(valor.toLowerCase())
+        (u.login && u.login.toLowerCase().includes(valor.toLowerCase()))
       )
       setUsuariosFiltrados(filtrados)
       setShowUsuariosList(true)
@@ -170,7 +170,7 @@ export default function AcessoPessoal(){
         {/* Tipo de Acesso */}
         <FormField label="Tipo de Acesso">
           <select value={form.id_tipo_acesso} onChange={e=>setForm({...form,id_tipo_acesso:parseInt(e.target.value)})}>
-            {(lookups.tiposServico||[]).length ? lookups.tiposServico.map(t=> <option key={t.id} value={t.id}>{t.nome}</option>) : <option value={1}>Visita</option> }
+            {(lookups.tiposServico||[]).length ? lookups.tiposServico.map(t=> <option key={t.id} value={t.id}>{t.nome}</option>) : <option key={1} value={1}>Visita</option> }
           </select>
         </FormField>
 

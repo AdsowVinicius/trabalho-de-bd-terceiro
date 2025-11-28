@@ -8,6 +8,7 @@ from app.routes import (
     acesso_veicular_router,
     lookups_router,
     empresa_router,
+    relatorios_router,
 )
 from app.database import engine
 from app.models import Base
@@ -68,6 +69,7 @@ app.include_router(acesso_pessoal_router)
 app.include_router(acesso_veicular_router)
 app.include_router(lookups_router)
 app.include_router(empresa_router)
+app.include_router(relatorios_router)
 
 
 @app.get("/", tags=["Root"])

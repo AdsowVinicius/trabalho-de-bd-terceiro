@@ -42,25 +42,30 @@ export default function AcessoVeicular(){
   const nav = useNavigate()
 
   useEffect(()=>{
-    api.fetchLookups().then(l=> setLookups({ 
-      tiposServico: l.tiposServico||[], 
-      veiculos: l.veiculos||[],
-      responsaveis: l.responsaveis||[],
-      transportadoras: l.transportadoras||[]
-    }))
+    api.fetchLookups().then(l=> {
+      console.log('Lookups carregados:', l)
+      setLookups({ 
+        tiposServico: l.tiposServico||[], 
+        veiculos: l.veiculos||[],
+        responsaveis: l.responsaveis||[],
+        transportadoras: l.transportadoras||[]
+      })
+    }).catch(err => console.error('Erro ao carregar lookups:', err))
   },[])
 
   // Filtrar veículos por placa ou modelo
   const handleSearchVeiculo = (valor) => {
     setSearchVeiculo(valor)
-    if(valor.trim()){
-      const filtrados = (lookups.veiculos||[]).filter(v=>
-        v.placa.toLowerCase().includes(valor.toLowerCase()) ||
+    if(valor.trim() && lookups.veiculos && lookups.veiculos.length > 0){
+      const filtrados = lookups.veiculos.filter(v=>
+        (v.placa && v.placa.toLowerCase().includes(valor.toLowerCase())) ||
         (v.modelo && v.modelo.toLowerCase().includes(valor.toLowerCase()))
       )
+      console.log('Veículos filtrados:', filtrados)
       setVeiculosFiltrados(filtrados)
       setShowVeiculosList(true)
     } else {
+      console.log('Nenhum veículo para filtrar. Lookups:', lookups.veiculos)
       setVeiculosFiltrados([])
       setShowVeiculosList(false)
     }
@@ -69,15 +74,23 @@ export default function AcessoVeicular(){
   // Filtrar responsáveis por nome ou documento
   const handleSearchResponsavel = (valor) => {
     setSearchResponsavel(valor)
-    if(valor.trim()){
-      const filtrados = (lookups.responsaveis||[]).filter(r=>
-        r.nome.toLowerCase().includes(valor.toLowerCase()) ||
-        r.documento.includes(valor) ||
-        r.login.toLowerCase().includes(valor.toLowerCase())
-      )
+    if(valor.trim() && lookups.responsaveis && lookups.responsaveis.length > 0){
+      const filtrados = lookups.responsaveis.filter(r=>{
+        // Validar dados antes de usar
+        if(!r || !r.nome) return false
+        const nome = r.nome ? r.nome.toLowerCase() : ''
+        const documento = r.documento ? String(r.documento) : ''
+        const login = r.login ? r.login.toLowerCase() : ''
+        
+        return nome.includes(valor.toLowerCase()) ||
+               documento.includes(valor) ||
+               login.includes(valor.toLowerCase())
+      })
+      console.log('Responsáveis filtrados:', filtrados)
       setResponsaveisFiltrados(filtrados)
       setShowResponsaveisList(true)
     } else {
+      console.log('Nenhum responsável para filtrar. Array:', lookups.responsaveis)
       setResponsaveisFiltrados([])
       setShowResponsaveisList(false)
     }
@@ -86,10 +99,12 @@ export default function AcessoVeicular(){
   // Filtrar transportadoras por nome
   const handleSearchTransportadora = (valor) => {
     setSearchTransportadora(valor)
-    if(valor.trim()){
-      const filtradas = (lookups.transportadoras||[]).filter(t=>
-        t.nome.toLowerCase().includes(valor.toLowerCase())
-      )
+    if(valor.trim() && lookups.transportadoras && lookups.transportadoras.length > 0){
+      const filtradas = lookups.transportadoras.filter(t=>{
+        if(!t || !t.nome) return false
+        const nome = t.nome ? t.nome.toLowerCase() : ''
+        return nome.includes(valor.toLowerCase())
+      })
       setTransportadorasFiltradas(filtradas)
       setShowTransportadorasList(true)
     } else {
@@ -101,13 +116,25 @@ export default function AcessoVeicular(){
   // Selecionar veículo
   const selecionarVeiculo = (veiculo) => {
     setVeiculoSelecionado(veiculo)
+    
+    // Buscar o responsável/motorista do veículo
+    const responsavelDoVeiculo = lookups.responsaveis.find(r => r.id === veiculo.id_responsavel)
+    
     setForm({
       ...form, 
       id_veiculo: veiculo.id, 
       placa: veiculo.placa,
       ano: veiculo.ano,
-      modelo: veiculo.modelo
+      modelo: veiculo.modelo,
+      id_responsavel: veiculo.id_responsavel || '' // Preencher automaticamente o responsável
     })
+    
+    // Se encontrou o responsável, preencher também
+    if(responsavelDoVeiculo){
+      setResponsavelSelecionado(responsavelDoVeiculo)
+      setSearchResponsavel(`${responsavelDoVeiculo.nome} (${responsavelDoVeiculo.documento})`)
+    }
+    
     setSearchVeiculo(`${veiculo.placa} (${veiculo.modelo || 'N/A'}) - ${veiculo.ano || 'N/A'}`)
     setShowVeiculosList(false)
   }
@@ -276,7 +303,7 @@ export default function AcessoVeicular(){
         {/* Tipo de Serviço */}
         <FormField label="Tipo de Servico">
           <select value={form.id_tipo_servico} onChange={e=>setForm({...form,id_tipo_servico:parseInt(e.target.value)})}>
-            {(lookups.tiposServico||[]).length ? lookups.tiposServico.map(t=> <option key={t.id} value={t.id}>{t.nome}</option>) : <option value={1}>Padrao</option> }
+            {(lookups.tiposServico||[]).length ? lookups.tiposServico.map(t=> <option key={t.id} value={t.id}>{t.nome}</option>) : <option key={1} value={1}>Padrao</option> }
           </select>
         </FormField>
 

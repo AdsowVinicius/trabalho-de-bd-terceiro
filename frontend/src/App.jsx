@@ -9,6 +9,7 @@ import AcessoVeicular from './pages/AcessoVeicular'
 import ControleAcesso from './pages/ControleAcesso'
 import Veiculos from './pages/Veiculos'
 import Empresas from './pages/Empresas'
+import Relatorios from './pages/Relatorios'
 
 export default function App() {
   return (
@@ -24,6 +25,7 @@ export default function App() {
           <Route path="/acessos-pessoais" element={<ProtectedRoute element={<AcessoPessoal />} />} />
           <Route path="/acessos-veiculares" element={<ProtectedRoute element={<AcessoVeicular />} />} />
           <Route path="/controle-acesso" element={<ProtectedRoute element={<ControleAcesso />} />} />
+          <Route path="/relatorios" element={<ProtectedRoute element={<Relatorios />} />} />
         </Routes>
       </main>
     </div>
