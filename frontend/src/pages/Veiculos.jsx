@@ -114,12 +114,30 @@ export default function Veiculos(){
   async function salvar(e) {
     e.preventDefault()
     
-    if (!form.placa.trim()) {
-      alert('Placa eh obrigatoria')
+    const placaTrimada = form.placa.trim().toUpperCase()
+    if (!placaTrimada) {
+      alert('Placa é obrigatória')
+      return
+    }
+    if (!/^[A-Z]{3}[0-9]{4}|[A-Z]{3}[0-9][A-Z][0-9]{2}$/.test(placaTrimada)) {
+      alert('Placa deve estar no formato: ABC1234 ou ABC1D23')
       return
     }
     if (!responsavelSelecionado) {
-      alert('Selecione um responsavel')
+      alert('Selecione um responsável')
+      return
+    }
+    
+    const modeloTrimado = form.modelo.trim()
+    if (modeloTrimado && modeloTrimado.length > 100) {
+      alert('Modelo não pode exceder 100 caracteres')
+      return
+    }
+    
+    const anoValor = parseInt(form.ano)
+    const anoAtual = new Date().getFullYear()
+    if (anoValor < 1980 || anoValor > anoAtual + 1) {
+      alert(`Ano deve estar entre 1980 e ${anoAtual + 1}`)
       return
     }
 
@@ -133,9 +151,9 @@ export default function Veiculos(){
             'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({
-            placa: form.placa,
-            modelo: form.modelo,
-            ano: parseInt(form.ano),
+            placa: placaTrimada,
+            modelo: modeloTrimado || null,
+            ano: anoValor,
             id_responsavel: form.id_responsavel
           })
         })
@@ -156,9 +174,9 @@ export default function Veiculos(){
             'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({
-            placa: form.placa,
-            modelo: form.modelo,
-            ano: parseInt(form.ano),
+            placa: placaTrimada,
+            modelo: modeloTrimado || null,
+            ano: anoValor,
             id_responsavel: form.id_responsavel
           })
         })

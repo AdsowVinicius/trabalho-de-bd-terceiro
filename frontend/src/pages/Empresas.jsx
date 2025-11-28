@@ -60,18 +60,37 @@ export default function Empresas(){
   const salvar = async (e) => {
     e.preventDefault()
     
-    if(!form.nome_empresa.trim()){
+    const nomeEmpresaTrimado = form.nome_empresa.trim()
+    if(!nomeEmpresaTrimado){
       alert('Nome da empresa é obrigatório')
       return
     }
-    if(!form.cnpj.trim()){
+    if(nomeEmpresaTrimado.length < 3){
+      alert('Nome da empresa deve ter no mínimo 3 caracteres')
+      return
+    }
+    if(nomeEmpresaTrimado.length > 120){
+      alert('Nome da empresa não pode exceder 120 caracteres')
+      return
+    }
+    
+    const cnpjTrimado = form.cnpj.trim().replace(/\D/g, '')
+    if(!cnpjTrimado){
       alert('CNPJ é obrigatório')
       return
     }
+    if(cnpjTrimado.length !== 14){
+      alert('CNPJ deve conter 14 dígitos')
+      return
+    }
+    
     if(!form.id_tipo_empresa){
       alert('Tipo de empresa é obrigatório')
       return
     }
+    
+    const responsavelTrimado = form.responsavel.trim()
+    const contatoTrimado = form.contato.trim()
 
     try{
       const url = editando 
@@ -87,11 +106,11 @@ export default function Empresas(){
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          nome_empresa: form.nome_empresa,
-          cnpj: form.cnpj,
+          nome_empresa: nomeEmpresaTrimado,
+          cnpj: cnpjTrimado,
           id_tipo_empresa: parseInt(form.id_tipo_empresa),
-          responsavel: form.responsavel || null,
-          contato: form.contato || null
+          responsavel: responsavelTrimado && responsavelTrimado.length > 0 ? responsavelTrimado : null,
+          contato: contatoTrimado && contatoTrimado.length > 0 ? contatoTrimado : null
         })
       })
 

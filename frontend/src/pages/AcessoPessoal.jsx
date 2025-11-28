@@ -78,7 +78,27 @@ export default function AcessoPessoal(){
       alert('Por favor, selecione um usuário')
       return
     }
-    const r = await api.createAcessoPessoal(form, token)
+    
+    // Validações e padronização
+    const motivoTrimado = form.motivo_visita.trim()
+    const observacaoTrimada = form.observacao.trim()
+    
+    if(motivoTrimado && motivoTrimado.length > 200){
+      alert('Motivo da visita não pode exceder 200 caracteres')
+      return
+    }
+    if(observacaoTrimada && observacaoTrimada.length > 500){
+      alert('Observação não pode exceder 500 caracteres')
+      return
+    }
+    
+    const formValidado = {
+      ...form,
+      motivo_visita: motivoTrimado || '',
+      observacao: observacaoTrimada || ''
+    }
+    
+    const r = await api.createAcessoPessoal(formValidado, token)
     if(r.status===201){ 
       alert('Acesso pessoal registrado com sucesso')
       setForm({ id_usuario:'', documento_usuario:'', id_tipo_acesso:1, id_empresa_visitada:null, motivo_visita:'', observacao:'' })

@@ -12,11 +12,11 @@ import Empresas from './pages/Empresas'
 
 export default function App() {
   return (
-    <div>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <Nav />
-      <main style={{ padding: 20 }}>
+      <main style={{ flex: 1 }}>
         <Routes>
-          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/" element={<Navigate to="/controle-acesso" replace />} />
           <Route path="/login" element={<Login />} />
           <Route path="/usuarios" element={<ProtectedRoute element={<Users />} />} />
           <Route path="/veiculos" element={<ProtectedRoute element={<Veiculos />} />} />

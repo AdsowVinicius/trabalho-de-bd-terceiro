@@ -27,42 +27,77 @@ export default function Users(){
     const tipo = parseInt(form.id_tipo_usuario || 1)
     const isInterno = [1, 2, 3].includes(tipo)
     
-    // Validações
-    if(!form.nome.trim()){
+    // Validações e Padronização
+    const nomeTrimado = form.nome.trim()
+    if(!nomeTrimado){
       alert('Nome é obrigatório')
       return
     }
-    if(!form.documento.trim()){
+    if(nomeTrimado.length < 3){
+      alert('Nome deve ter no mínimo 3 caracteres')
+      return
+    }
+    if(nomeTrimado.length > 120){
+      alert('Nome não pode exceder 120 caracteres')
+      return
+    }
+    
+    const documentoTrimado = form.documento.trim().replace(/\D/g, '')
+    if(!documentoTrimado){
       alert('Documento é obrigatório')
       return
     }
-    if(isInterno && !form.login.trim()){
-      alert('Login é obrigatório para usuários internos')
+    if(documentoTrimado.length < 8){
+      alert('Documento deve ter no mínimo 8 dígitos')
       return
     }
-    if(isInterno && !form.senha.trim() && !editando){
-      alert('Senha é obrigatória para usuários internos')
-      return
-    }
-    if(isInterno && !form.id_perfil_acesso){
-      alert('Perfil de acesso é obrigatório para usuários internos')
-      return
+    
+    if(isInterno){
+      const loginTrimado = form.login.trim().toLowerCase()
+      if(!loginTrimado){
+        alert('Login é obrigatório para usuários internos')
+        return
+      }
+      if(loginTrimado.length < 4){
+        alert('Login deve ter no mínimo 4 caracteres')
+        return
+      }
+      if(!/^[a-z0-9._-]+$/.test(loginTrimado)){
+        alert('Login deve conter apenas letras, números, ponto, hífen ou underscore')
+        return
+      }
+      
+      if(!form.senha.trim() && !editando){
+        alert('Senha é obrigatória para usuários internos')
+        return
+      }
+      if(form.senha.trim() && form.senha.trim().length < 6){
+        alert('Senha deve ter no mínimo 6 caracteres')
+        return
+      }
+      
+      if(!form.id_perfil_acesso){
+        alert('Perfil de acesso é obrigatório para usuários internos')
+        return
+      }
     }
 
     const token = localStorage.getItem('token')
+    const contatoTrimado = form.contato.trim()
+    
     const payload = {
-      nome: form.nome,
-      documento: form.documento,
+      nome: nomeTrimado,
+      documento: documentoTrimado,
       id_tipo_usuario: tipo,
       empresa_origem: form.empresa_origem ? parseInt(form.empresa_origem) : null,
-      contato: form.contato || null,
+      contato: contatoTrimado && contatoTrimado.length > 0 ? contatoTrimado : null,
       ativo: true
     }
     
     // Adicionar campos de acesso para todos (interno com valores, externo com null)
     if(isInterno){
-      payload.login = form.login
-      if(form.senha.trim()) payload.senha = form.senha  // Apenas se preenchido (não obrigatório na edição)
+      payload.login = form.login.trim().toLowerCase()
+      if(form.senha.trim()) payload.senha = form.senha.trim()
       payload.id_perfil_acesso = parseInt(form.id_perfil_acesso)
     } else {
       payload.login = null

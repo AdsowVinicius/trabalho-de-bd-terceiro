@@ -18,25 +18,48 @@ export default function Nav(){
   const usuarioObj = JSON.parse(usuario)
 
   return (
-    <nav style={{ padding: '10px 20px', background:'#222', color:'#fff', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-      <div>
-        <Link to="/controle-acesso" style={{ color:'#fff', marginRight: 12, fontWeight:'bold' }}>Controle de Acesso</Link>
-        <Link to="/acessos-pessoais" style={{ color:'#fff', marginRight: 12 }}>Acessos Pessoais</Link>
-        <Link to="/acessos-veiculares" style={{ color:'#fff', marginRight: 12 }}>Acessos Veiculares</Link>
-        <Link to="/veiculos" style={{ color:'#fff', marginRight: 12 }}>Gestão Veículos</Link>
-        <Link to="/empresas" style={{ color:'#fff', marginRight: 12 }}>Gestão Empresas</Link>
-        <Link to="/usuarios" style={{ color:'#fff', marginRight: 12 }}>Gestão Usuários</Link>
-      </div>
-      <div style={{ display:'flex', alignItems:'center', gap:'15px' }}>
-        <span style={{ fontSize:'14px' }}>Olá, {usuarioObj.nome || usuarioObj.login}</span>
-        <button 
-          onClick={handleLogout}
-          style={{ padding:'8px 16px', backgroundColor:'#f44336', color:'#fff', border:'none', borderRadius:'4px', cursor:'pointer' }}
-        >
-          Logout
-        </button>
-      </div>
-    </nav>
+    <div className="navbar">
+      <nav>
+        <h1 style={{ cursor: 'pointer', transition: 'all 0.3s ease' }} onClick={() => nav('/controle-acesso')} onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'} onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}>🔐 Controle de Acesso</h1>
+        <ul>
+          <li><Link to="/controle-acesso">Monitoramento</Link></li>
+          <li><Link to="/acessos-pessoais">Acessos Pessoais</Link></li>
+          <li><Link to="/acessos-veiculares">Acessos Veiculares</Link></li>
+          <li><Link to="/veiculos">Veículos</Link></li>
+          <li><Link to="/empresas">Empresas</Link></li>
+          <li><Link to="/usuarios">Usuários</Link></li>
+          <li style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <span style={{ fontSize: '14px', fontWeight: '500' }}>
+              👤 {usuarioObj.nome || usuarioObj.login}
+            </span>
+            <button 
+              onClick={handleLogout}
+              style={{
+                padding: '8px 16px',
+                backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                color: '#fff',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '13px',
+                fontWeight: '500',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = 'rgba(231, 76, 60, 0.8)';
+                e.target.style.borderColor = '#E74C3C';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+                e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+              }}
+            >
+              Sair
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </div>
   )
 }
 
