@@ -35,12 +35,22 @@ export default function Login(){
     if(r.status === 200){
       const token = r.data.access_token
       const usuario = r.data.usuario
+      
+      // Verificar tipo de usuário (admin, operador, segurança) ou perfil
+      const tipoUsuario = usuario.tipo_usuario_chave ? usuario.tipo_usuario_chave.toLowerCase() : ''
       const perfilId = usuario.id_perfil_acesso
       const perfilObj = perfis.find(p=>p.id===perfilId || p.id_perfil_acesso===perfilId || p.value===perfilId)
       const perfilNome = perfilObj ? (perfilObj.nome || perfilObj.label || perfilObj.value) : null
+      
+      // Tipos de usuário permitidos
+      const allowedTipos = ['admin', 'operador', 'seguranca', 'segurança']
       const allowedPerfils = ['porteiro', 'funcionário', 'funcionario', 'administrador', 'admin', 'segurança', 'seguranca']
       
-      if(perfilNome && allowedPerfils.some(p => perfilNome.toLowerCase().includes(p))){
+      // Aceita se for tipo permitido OU se tiver perfil permitido
+      const temAcesso = allowedTipos.some(t => tipoUsuario.includes(t)) || 
+                       (perfilNome && allowedPerfils.some(p => perfilNome.toLowerCase().includes(p)))
+      
+      if(temAcesso){
         setSuccess('✅ Autenticação bem-sucedida! Redirecionando...')
         localStorage.setItem('token', token)
         localStorage.setItem('usuario', JSON.stringify(usuario))

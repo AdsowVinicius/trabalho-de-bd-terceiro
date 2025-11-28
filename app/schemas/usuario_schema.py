@@ -36,9 +36,11 @@ class UsuarioResponse(UsuarioBase):
     id_usuario: int
     login: Optional[str] = None
     data_cadastro: datetime
+    tipo_usuario_chave: Optional[str] = Field(None, validation_alias="tipo_usuario_chave")
     
     class Config:
         from_attributes = True
+        populate_by_name = True
 
 
 class UsuarioLogin(BaseModel):

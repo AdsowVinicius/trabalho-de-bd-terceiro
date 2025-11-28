@@ -24,6 +24,14 @@ class Usuario(Base):
     acessos_pessoais = relationship("AcessoPessoal", back_populates="usuario")
     veiculos = relationship("Veiculo", back_populates="responsavel")
     acessos_veiculares = relationship("AcessoVeicular", back_populates="responsavel")
+    tipo_usuario = relationship("LuTiposUsuario", foreign_keys=[id_tipo_usuario])
+    
+    @property
+    def tipo_usuario_chave(self):
+        """Retorna a chave do tipo de usuário"""
+        if self.tipo_usuario:
+            return self.tipo_usuario.chave
+        return None
     
     def __repr__(self):
         return f"<Usuario(id={self.id_usuario}, nome={self.nome}, login={self.login})>"
