@@ -14,7 +14,7 @@ class Usuario(Base):
     id_tipo_usuario = Column(Integer, ForeignKey("lu_tipos_usuario.id"), nullable=False)
     login = Column(String(80), unique=True, nullable=True)
     senha_hash = Column(String(255), nullable=True)
-    id_perfil_acesso = Column(Integer, ForeignKey("lu_perfis_acesso.id"), nullable=False)
+    id_perfil_acesso = Column(Integer, ForeignKey("lu_perfis_acesso.id"), nullable=True)
     empresa_origem = Column(Integer, ForeignKey("empresas.id_empresa"), nullable=True)
     contato = Column(String(60), nullable=True)
     ativo = Column(Boolean, default=True, nullable=False)
@@ -27,3 +27,4 @@ class Usuario(Base):
     
     def __repr__(self):
         return f"<Usuario(id={self.id_usuario}, nome={self.nome}, login={self.login})>"
+

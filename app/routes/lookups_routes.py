@@ -32,6 +32,12 @@ def _safe_lookup_list(db: Session, table_name: str, id_col: str = "id", name_col
                     name_col = col
                     break
         
+        # Se é tabela de tipos de usuário, incluir a coluna 'chave'
+        if table_name == "lu_tipos_usuario":
+            sql = text(f"SELECT {id_col} as id, {name_col} as nome, chave FROM {table_name} ORDER BY {id_col}")
+            res = db.execute(sql).mappings().all()
+            return [{"id": r["id"], "nome": (r["nome"] or ""), "chave": r["chave"]} for r in res]
+        
         # If no suitable column found, return just IDs
         if not name_col:
             sql = text(f"SELECT {id_col} as id FROM {table_name} ORDER BY {id_col}")
@@ -42,8 +48,9 @@ def _safe_lookup_list(db: Session, table_name: str, id_col: str = "id", name_col
         sql = text(f"SELECT {id_col} as id, {name_col} as nome FROM {table_name} ORDER BY {id_col}")
         res = db.execute(sql).mappings().all()
         return [{"id": r["id"], "nome": (r["nome"] or "")} for r in res]
-    except Exception:
+    except Exception as e:
         # Do not expose DB internals to the frontend; return empty list instead.
+        print(f"Erro em _safe_lookup_list: {e}")
         return []
 
 

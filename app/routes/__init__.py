@@ -3,6 +3,7 @@ from .veiculo_routes import router as veiculo_router
 from .acesso_pessoal_routes import router as acesso_pessoal_router
 from .acesso_veicular_routes import router as acesso_veicular_router
 from .lookups_routes import router as lookups_router
+from .empresa_routes import router as empresa_router
 
 __all__ = [
     "usuario_router",
@@ -10,4 +11,5 @@ __all__ = [
     "acesso_pessoal_router",
     "acesso_veicular_router",
     "lookups_router",
+    "empresa_router",
 ]

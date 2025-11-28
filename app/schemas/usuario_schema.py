@@ -8,7 +8,7 @@ class UsuarioBase(BaseModel):
     nome: str = Field(..., min_length=1, max_length=120)
     documento: str = Field(..., min_length=1, max_length=30)
     id_tipo_usuario: int
-    id_perfil_acesso: int
+    id_perfil_acesso: Optional[int] = None
     empresa_origem: Optional[int] = None
     contato: Optional[str] = Field(None, max_length=60)
     ativo: bool = True
@@ -16,13 +16,16 @@ class UsuarioBase(BaseModel):
 
 class UsuarioCreate(UsuarioBase):
     """Schema para criação de Usuario"""
-    login: str = Field(..., min_length=1, max_length=80)
-    senha: str = Field(..., min_length=6)
+    login: Optional[str] = Field(None, min_length=1, max_length=80)
+    senha: Optional[str] = Field(None, min_length=6)
 
 
 class UsuarioUpdate(BaseModel):
     """Schema para atualização de Usuario"""
     nome: Optional[str] = Field(None, min_length=1, max_length=120)
+    login: Optional[str] = Field(None, min_length=1, max_length=80)
+    senha: Optional[str] = Field(None, min_length=6)
+    id_perfil_acesso: Optional[int] = None
     contato: Optional[str] = Field(None, max_length=60)
     ativo: Optional[bool] = None
     empresa_origem: Optional[int] = None

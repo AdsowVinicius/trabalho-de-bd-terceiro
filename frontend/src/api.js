@@ -67,4 +67,47 @@ export async function listUsers(){
   return request('/usuarios/')
 }
 
-export default { fetchLookups, login, registerUser, createVeiculo, createAcessoPessoal, createAcessoVeicular, listUsers }
+export async function getAcessosPessoaisAtivos(token){
+  return request('/acessos-pessoais/', {
+    headers: { ...(token?{Authorization: 'Bearer '+token}: {}) }
+  })
+}
+
+export async function getAcessosVeiculaesAtivos(token){
+  return request('/acessos-veiculares/', {
+    headers: { ...(token?{Authorization: 'Bearer '+token}: {}) }
+  })
+}
+
+export async function darSaidaPessoal(acessoId, token){
+  return request(`/acessos-pessoais/${acessoId}/saida`, {
+    method: 'PUT',
+    headers: { 'Content-Type':'application/json', Authorization: 'Bearer '+token },
+    body: JSON.stringify({})
+  })
+}
+
+export async function darSaidaVeicular(acessoId, token){
+  return request(`/acessos-veiculares/${acessoId}/saida`, {
+    method: 'PUT',
+    headers: { 'Content-Type':'application/json', Authorization: 'Bearer '+token },
+    body: JSON.stringify({})
+  })
+}
+
+export async function updateUser(usuarioId, payload, token){
+  return request(`/usuarios/${usuarioId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type':'application/json', Authorization: 'Bearer '+token },
+    body: JSON.stringify(payload)
+  })
+}
+
+export async function deleteUser(usuarioId, token){
+  return request(`/usuarios/${usuarioId}`, {
+    method: 'DELETE',
+    headers: { Authorization: 'Bearer '+token }
+  })
+}
+
+export default { fetchLookups, login, registerUser, createVeiculo, createAcessoPessoal, createAcessoVeicular, listUsers, getAcessosPessoaisAtivos, getAcessosVeiculaesAtivos, darSaidaPessoal, darSaidaVeicular, updateUser, deleteUser }

@@ -38,10 +38,6 @@ export default function AcessoVeicular(){
   const [searchResponsavel, setSearchResponsavel] = useState('')
   const [searchTransportadora, setSearchTransportadora] = useState('')
   
-  const [showNovoVeiculo, setShowNovoVeiculo] = useState(false)
-  const [showNovoResponsavel, setShowNovoResponsavel] = useState(false)
-  const [showNovaTransportadora, setShowNovaTransportadora] = useState(false)
-  
   const token = localStorage.getItem('token')
   const nav = useNavigate()
 
@@ -366,72 +362,13 @@ export default function AcessoVeicular(){
           </button>
           <button 
             type="button" 
-            onClick={()=>setShowNovoVeiculo(!showNovoVeiculo)}
+            onClick={()=>nav('/veiculos')}
             style={{ flex:1, minWidth:'150px', backgroundColor:'#ff9800' }}
           >
-            {showNovoVeiculo ? 'Cancelar' : 'Cadastrar Novo Veiculo'}
-          </button>
-          <button 
-            type="button" 
-            onClick={()=>setShowNovoResponsavel(!showNovoResponsavel)}
-            style={{ flex:1, minWidth:'150px', backgroundColor:'#ff9800' }}
-          >
-            {showNovoResponsavel ? 'Cancelar' : 'Cadastrar Novo Responsavel'}
-          </button>
-          <button 
-            type="button" 
-            onClick={()=>setShowNovaTransportadora(!showNovaTransportadora)}
-            style={{ flex:1, minWidth:'150px', backgroundColor:'#ff9800' }}
-          >
-            {showNovaTransportadora ? 'Cancelar' : 'Cadastrar Nova Transportadora'}
+            Cadastrar Novo Veiculo
           </button>
         </div>
       </form>
-
-      {/* Modal Novo Veiculo */}
-      {showNovoVeiculo && (
-        <div style={{ marginTop:'30px', border:'2px solid #ff9800', padding:'20px', borderRadius:'8px', backgroundColor:'#fff3e0' }}>
-          <h3>Cadastrar Novo Veiculo</h3>
-          <p style={{ color:'#666' }}>Ir para pagina de Gestao de Veiculos para adicionar um novo veiculo</p>
-          <button 
-            type="button"
-            onClick={()=>nav('/users')}  // TODO: change to /veiculos when page created
-            style={{ width:'100%', padding:'12px', backgroundColor:'#4CAF50', color:'white', border:'none', borderRadius:'4px', cursor:'pointer', fontSize:'16px' }}
-          >
-            Ir para Gestao de Veiculos
-          </button>
-        </div>
-      )}
-
-      {/* Modal Novo Responsável */}
-      {showNovoResponsavel && (
-        <div style={{ marginTop:'30px', border:'2px solid #ff9800', padding:'20px', borderRadius:'8px', backgroundColor:'#fff3e0' }}>
-          <h3>Cadastrar Novo Responsavel</h3>
-          <p style={{ color:'#666' }}>Ir para pagina de Gestao de Usuarios para adicionar um novo motorista/condutor</p>
-          <button 
-            type="button"
-            onClick={()=>nav('/users')}
-            style={{ width:'100%', padding:'12px', backgroundColor:'#4CAF50', color:'white', border:'none', borderRadius:'4px', cursor:'pointer', fontSize:'16px' }}
-          >
-            Ir para Gestao de Usuarios
-          </button>
-        </div>
-      )}
-
-      {/* Modal Nova Transportadora */}
-      {showNovaTransportadora && (
-        <div style={{ marginTop:'30px', border:'2px solid #ff9800', padding:'20px', borderRadius:'8px', backgroundColor:'#fff3e0' }}>
-          <h3>Cadastrar Nova Transportadora</h3>
-          <p style={{ color:'#666' }}>Ir para pagina de Gestao de Empresas para adicionar uma nova transportadora</p>
-          <button 
-            type="button"
-            onClick={()=>nav('/users')}  // TODO: change to /empresas when page created
-            style={{ width:'100%', padding:'12px', backgroundColor:'#4CAF50', color:'white', border:'none', borderRadius:'4px', cursor:'pointer', fontSize:'16px' }}
-          >
-            Ir para Gestao de Empresas
-          </button>
-        </div>
-      )}
     </div>
   )
 }

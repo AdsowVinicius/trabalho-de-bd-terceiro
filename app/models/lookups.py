@@ -11,7 +11,8 @@ class LuPerfisAcesso(Base):
 class LuTiposUsuario(Base):
     __tablename__ = "lu_tipos_usuario"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    nome = Column(String(120), nullable=False)
+    chave = Column(String(50), nullable=False, unique=True)
+    descricao = Column(String(120), nullable=False)
 
 
 class LuTiposEmpresa(Base):
